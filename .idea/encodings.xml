@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/csv/경상남도 밀양시_캠핑장 현황_20220530.csv" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/csv/경상남도 양산시_야영장업 현황_20220601.csv" charset="EUC-KR" />
+    <file url="file://$PROJECT_DIR$/csv/부산광역시 기장군_야영장(캠핑장)_20230407.csv" charset="EUC-KR" />
+    <file url="file://$PROJECT_DIR$/csv/충청강원 캠핑장 정보.csv" charset="EUC-KR" />
+  </component>
+</project>
