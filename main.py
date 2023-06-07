@@ -157,19 +157,19 @@ def recommend_camping(search_text):
 chat_list = []
 
 
-@app.route('/v1/generate-vector', methods=['POST'])
+@app.route('/campy/v1/generate-vector', methods=['POST'])
 def generate_vector():
     init(int(json.loads(request.get_data().decode())['count']))
     return Response(status=200)
 
 
-@app.route('/v1/chat/open', methods=['POST'])
+@app.route('/campy/v1/chat/open', methods=['POST'])
 def chat():
     chat_list.append([])
     return {"code": len(chat_list)}
 
 
-@app.route('/v1/chat', methods=['POST'])
+@app.route('/campy/v1/chat', methods=['POST'])
 def post_chat():
     data = json.loads(request.get_data().decode())
     print(data['code'])
@@ -231,7 +231,7 @@ def post_chat():
     return completion.choices[0].message
 
 
-@app.route('/v1/chat/<code>', methods=['GET'])
+@app.route('/campy/v1/chat/<code>', methods=['GET'])
 def get_chat(code):
     print(chat_list)
     for msg in chat_list[int(code) - 1]:
