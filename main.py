@@ -113,7 +113,7 @@ def init(epoch):
 
 
 def recommend_camping(search_text):
-    k_nearest_neighbors = 5
+    k_nearest_neighbors = 1
 
     df_process3 = pd.read_csv("csv/process3.csv", encoding='utf-8')
 
@@ -132,7 +132,7 @@ def recommend_camping(search_text):
 
     result = []
 
-    print(f"Source string: {search_text}")
+    # print(f"Source string: {search_text}")
     k_counter = 0
     for i in indices_of_nearest_neighbors:
         # skip any strings that are identical matches to the starting string
@@ -145,10 +145,9 @@ def recommend_camping(search_text):
 
         # print out the similar strings and their distances
         print(
-            f"""
-    --- Recommendation #{k_counter} (nearest neighbor {k_counter} of {k_nearest_neighbors}) ---
+            f"""--- Recommendation #{k_counter} (nearest neighbor {k_counter} of {k_nearest_neighbors}) ---
     String: {df_process3.iloc[i - 1]['process2']}
-    Distance: {distances[i]:0.3f}"""
+    Distance: {distances[i]:0.3f}\n"""
         )
         result.append(df_process3.iloc[i - 1]['process2'])
     return result
@@ -172,8 +171,8 @@ def chat():
 @app.route('/campy/v1/chat', methods=['POST'])
 def post_chat():
     data = json.loads(request.get_data().decode())
-    print(data['code'])
-    print(data['msg'])
+    print("code: ", data['code'])
+    print("msg: ", data['msg'])
 
     code = int(data['code']) - 1
     msg = data['msg']
@@ -184,26 +183,27 @@ def post_chat():
     question = ""
     for user_msg in chat_list[int(code) - 1]:
         if user_msg['role'] == 'user':
-            question += "과거 질문: " + user_msg['content'] + "\n"
-    question += "질문: " + msg + "\n"
+            question += user_msg['content'] + "\n"
+    question += msg + "\n"
 
-    print("question", question)
+    print("====================비슷한 질문 생성====================")
+    completion_request = "아래 질문들에서 요구하는 내용을 5가지 다른 문장으로 만들어줘\n{detail}".format(detail=question)
+    print("GTP Completion Request\n\n", completion_request)
 
     msg_completion = openai.Completion.create(
         model="text-davinci-003",
-        prompt="질문들이 요구하는 내용을 5가지 다른 문장으로 만들어줘\n{detail}".format(
-            detail=question),
+        prompt=completion_request,
         max_tokens=500,
         temperature=1
     )
-    print("msg_completion", msg_completion.choices[0].text)
-
+    print("GTP Completion Response\n\n", msg_completion.choices[0].text)
+    print("====================유사도 검사====================")
     chat_completion = [
         {
             "role": "system",
             "content": "Use the following step-by-step instructions to respond to user inputs.\n" +
                        "질문과 관련된 캠핑장 정보를 조회해.\n" +
-                       "조회한 정보를 바탕으로 정확한 답변을 할 수 있는 것은 답변해(답변은 \"지금까지 종합한 결과\"로 시작해)\n"
+                       "조회한 정보를 바탕으로 정확한 답변을 할 수 있는 것은 답변하는데 \"분석한 결과\"로 시작해.\n"
                        "답변할 수 없다면 답변을 하지마."
         }, {
             "role": "user",
@@ -214,6 +214,9 @@ def post_chat():
                 recommend_camping(msg + msg_completion.choices[0].text)) + "\n\n"
         }
     ]
+    print("====================질문 답변 생성====================")
+
+    print(json.dumps(chat_completion, ensure_ascii=False, indent=4))
 
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
@@ -227,6 +230,7 @@ def post_chat():
     )
 
     chat_list[code].append(completion.choices[0].message)
+    print(json.dumps(completion.choices[0].message, ensure_ascii=False, indent=4))
 
     return completion.choices[0].message
 
