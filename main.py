@@ -181,9 +181,9 @@ def post_chat():
         return Response(status=400)
 
     question = ""
-    for user_msg in chat_list[int(code) - 1]:
-        if user_msg['role'] == 'user':
-            question += user_msg['content'] + "\n"
+    # for user_msg in chat_list[int(code) - 1]:
+    #     if user_msg['role'] == 'user':
+    #         question += user_msg['content'] + "\n"
     question += msg + "\n"
 
     print("====================비슷한 질문 생성====================")
